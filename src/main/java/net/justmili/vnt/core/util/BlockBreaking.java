@@ -12,7 +12,6 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 
@@ -63,11 +62,11 @@ public class BlockBreaking {
         boolean sound = soundPercentage > 0f && Maths.ceil((index + 1) * soundPercentage) > Maths.ceil(index * soundPercentage);
 
         if (particles && sound) {
-            level.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state));
+            // LevelEvent constant name changed in 26.3 so it's just better to use the numerical value
+            level.levelEvent(2001, pos, Block.getId(state));
         } else if (sound) {
             var type = state.getSoundType();
-            // TODO: Fix on 26.3 (compiles, runs, doesn't crash, but no sound)
-            level.playSound(null, pos, type.getBreakSound(), SoundSource.BLOCKS, Maths.lerp(type.getVolume(), 1f, 0.5f), type.getPitch() * 0.8f);
+            level.playSound(null, pos, type.getBreakSound(), SoundSource.BLOCKS, type.getVolume(), type.getPitch());
         } else if (particles) {
             level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 20, 0.3, 0.3, 0.3, 0.05);
         }

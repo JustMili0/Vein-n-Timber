@@ -16,8 +16,4 @@ public class Maths {
     public static long floorDiv(long dividend, long divisor) {
         return Math.floorDiv(dividend, divisor);
     }
-
-    public static float lerp(float start, float end, float delta) {
-        return Mth.lerp(delta, start, end);
-    }
 }
