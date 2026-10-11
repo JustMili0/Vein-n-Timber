@@ -1,5 +1,6 @@
 package net.justmili.vnt.core.util;
 
+import net.justmili.vnt.config.DropPlacements;
 import net.justmili.vnt.core.util.search.SearchAlgorithms;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -22,12 +23,26 @@ public class BlockBreaking {
         return tool.getMaxDamage() - tool.getDamageValue() > 1;
     }
 
+    // Drop the block's resources where dropPlace says, origin is the block the player actually broke
+    public static void drop(ServerLevel level, ServerPlayer player, ItemStack tool, BlockState state, BlockPos pos, DropPlacements dropPlace, BlockPos origin) {
+        if (dropPlace == DropPlacements.WHERE_BROKEN) {
+            Block.dropResources(state, level, pos, level.getBlockEntity(pos), player, tool);
+            return;
+        }
+
+        var dropPos = dropPlace.posByPlace(pos, origin, player);
+        for (var stack : Block.getDrops(state, level, pos, level.getBlockEntity(pos), player, tool)) {
+            if (dropPlace == DropPlacements.PLAYER_INV) player.getInventory().add(stack); // Leaves whatever didn't fit in the stack
+            if (!stack.isEmpty()) Block.popResource(level, dropPos, stack);
+        }
+    }
+
     // TODO: Do some fuckery (probably mixins) to allow this to not play all block breaking sounds but only a percentage of them
-    public static void destroy(ServerLevel level, ServerPlayer player, ItemStack tool, BlockState state, BlockPos pos, boolean playEffects, boolean damageTool) {
+    public static void destroy(ServerLevel level, ServerPlayer player, ItemStack tool, BlockState state, DropPlacements dropPlace, BlockPos origin, BlockPos pos, boolean playEffects, boolean damageTool) {
         if (state.isAir() || state.getDestroySpeed(level, pos) < 0) return;
         if (!player.hasCorrectToolForDrops(state)) return;
 
-        Block.dropResources(state, level, pos, level.getBlockEntity(pos), player, tool);
+        BlockBreaking.drop(level, player, tool, state, pos, dropPlace, origin);
         state.spawnAfterBreak(level, pos, tool, true);
         if (playEffects) level.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state));
 
@@ -40,10 +55,6 @@ public class BlockBreaking {
         }
         level.gameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Context.of(player, state));
         player.awardStat(Stats.BLOCK_MINED.get(state.getBlock()));
-    }
-
-    public static void destroy(ServerLevel level, ServerPlayer player, ItemStack tool, BlockState state, BlockPos pos, boolean playEffects) {
-        BlockBreaking.destroy(level, player, tool, state, pos, playEffects, true);
     }
 
     public static List<BlockPos> breadthFirstSearch(Level level, BlockPos origin, Predicate<BlockState> stateMatch, int maxRadius, int maxSize) {

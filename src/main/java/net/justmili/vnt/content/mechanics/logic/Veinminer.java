@@ -19,7 +19,7 @@ public class Veinminer {
     }
 
     public static boolean requireShift(Player player) {
-        return !Config.shiftToVeinmine || player.isShiftKeyDown();
+        return Config.shiftToVeinmine == player.isShiftKeyDown();
     }
 
     public static void mineOreVein(ServerLevel level, ServerPlayer player, BlockState state, BlockPos pos, boolean wasBroken) {
@@ -29,7 +29,7 @@ public class Veinminer {
         var tool = player.getMainHandItem();
         for (var target : BlockBreaking.breadthFirstSearch(level, pos, TagUtil.matchOreTags(state), RADIUS, SIZE)) {
             if (!BlockBreaking.canAfford(tool)) break; // Stop if tool durability is <= 1
-            BlockBreaking.destroy(level, player, tool, level.getBlockState(target), target, Config.veinBreakParticles);
+            BlockBreaking.destroy(level, player, tool, level.getBlockState(target), Config.veinDropPlace, pos, target, Config.veinBreakParticles, true);
         }
     }
 }

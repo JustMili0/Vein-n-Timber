@@ -24,7 +24,7 @@ public class TreeTrunkOutline {
         if (!Timber.canSeeTree(player, state)) return true;
         if (!isTree(level, group.blockPos())) return true;
 
-        var color = OutlineRGB.get(player);
+        var color = OutlineRGB.get(Timber.requireShift(player));
         return BlockGroupOutlineRenderer.render(group, player, TreeUtil::isLog, Timber.TRUNK_RADIUS, Timber.TRUNK_SIZE,
             color.a(), color.r(), color.g(), color.b(), true);
     }

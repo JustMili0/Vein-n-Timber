@@ -8,7 +8,6 @@ public class Config {
     - List of blocks/tags considered as leaves
     - List of veinmine tools (item/tag)
     - List of timber tools (item/tag)
-    - Max radius entries of veinminer and timber
     */
     public static boolean shiftToVeinmine;
     public static boolean shiftToTimber;

@@ -1,6 +1,7 @@
 package net.justmili.vnt.content.mechanics.logic;
 
 import net.justmili.vnt.config.Config;
+import net.justmili.vnt.config.DropPlacements;
 import net.justmili.vnt.core.util.BlockBreaking;
 import net.justmili.vnt.core.util.TreeUtil;
 import net.minecraft.core.BlockPos;
@@ -20,7 +21,7 @@ public class Timber {
     }
 
     public static boolean requireShift(Player player) {
-        return !Config.shiftToTimber || player.isShiftKeyDown();
+        return Config.shiftToTimber == player.isShiftKeyDown();
     }
 
     public static void chopDownTree(ServerLevel level, ServerPlayer player, BlockState state, BlockPos pos, boolean wasBroken) {
@@ -34,16 +35,22 @@ public class Timber {
         boolean trunkParticles = Config.trunkBreakParticles;
         boolean leavesParticles = Config.leavesBreakParticles;
         boolean leavesDamageTool = Config.leavesDamageTool;
+        var trunkDropPlace = Config.trunkDropPlace;
+        var leavesDropPlace = Config.leavesDropPlace;
+        if (!Config.includeLeavesDrops
+            && (leavesDropPlace == DropPlacements.PLAYER_POS
+            || leavesDropPlace == DropPlacements.PLAYER_INV)
+        ) leavesDropPlace = DropPlacements.WHERE_BROKEN;
 
         // Chop tree
         for (var log : logs) {
             if (!BlockBreaking.canAfford(tool)) break; // Stop if tool durability is <= 1
-            BlockBreaking.destroy(level, player, tool, level.getBlockState(log), log, trunkParticles);
+            BlockBreaking.destroy(level, player, tool, level.getBlockState(log), trunkDropPlace, pos, log, trunkParticles, true);
         }
         if (Config.breakTreeLeaves) {
             for (var leaf : leaves) {
                 if (!BlockBreaking.canAfford(tool) && leavesDamageTool) break; // Stop if tool durability is <= 1
-                BlockBreaking.destroy(level, player, tool, level.getBlockState(leaf), leaf, leavesParticles, leavesDamageTool);
+                BlockBreaking.destroy(level, player, tool, level.getBlockState(leaf), leavesDropPlace, pos, leaf, leavesParticles, leavesDamageTool);
             }
         }
     }
