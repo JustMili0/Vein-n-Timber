@@ -66,6 +66,7 @@ public class BlockBreaking {
             level.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state));
         } else if (sound) {
             var type = state.getSoundType();
+            // TODO: Fix on 26.3 (compiles, runs, doesn't crash, but no sound)
             level.playSound(null, pos, type.getBreakSound(), SoundSource.BLOCKS, Maths.lerp(type.getVolume(), 1f, 0.5f), type.getPitch() * 0.8f);
         } else if (particles) {
             level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 20, 0.3, 0.3, 0.3, 0.05);
