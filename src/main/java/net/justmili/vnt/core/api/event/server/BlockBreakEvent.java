@@ -1,5 +1,6 @@
-package net.justmili.vnt.core.api;
+package net.justmili.vnt.core.api.event.server;
 
+import net.justmili.vnt.core.api.event.Event;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;

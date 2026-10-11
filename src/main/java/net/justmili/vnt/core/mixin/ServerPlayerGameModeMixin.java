@@ -1,6 +1,6 @@
 package net.justmili.vnt.core.mixin;
 
-import net.justmili.vnt.core.api.BlockBreakEvent;
+import net.justmili.vnt.core.api.event.server.BlockBreakEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;

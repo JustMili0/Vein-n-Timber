@@ -13,7 +13,9 @@ public class Config {
     public static boolean shiftToVeinmine;
     public static boolean shiftToTimber;
     public static int maxVeinSize;
+    public static int maxVeinRadius;
     public static int maxTrunkSize;
+    public static int maxTrunkRadius;
     public static int maxLeavesSize;
     public static boolean breakTreeLeaves;
     public static boolean leavesDamageTool;
@@ -32,9 +34,11 @@ public class Config {
 
     public static void initCommon() { // Create as common-server-priority
         shiftToVeinmine = true;
-        shiftToTimber = true;
+        shiftToTimber = false;
         maxVeinSize = 64;
+        maxVeinRadius = 16;
         maxTrunkSize = 256;
+        maxTrunkRadius = 48;
         maxLeavesSize = 256;
         breakTreeLeaves = true;
         leavesDamageTool = false;

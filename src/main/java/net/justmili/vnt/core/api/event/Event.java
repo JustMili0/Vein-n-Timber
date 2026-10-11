@@ -1,4 +1,4 @@
-package net.justmili.vnt.core.api;
+package net.justmili.vnt.core.api.event;
 
 import java.lang.reflect.Array;
 import java.util.function.Function;

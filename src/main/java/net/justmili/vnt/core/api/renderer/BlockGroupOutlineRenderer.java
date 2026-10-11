@@ -1,4 +1,4 @@
-package net.justmili.vnt.client.renderer;
+package net.justmili.vnt.core.api.renderer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

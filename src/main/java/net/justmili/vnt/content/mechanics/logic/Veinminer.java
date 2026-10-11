@@ -11,19 +11,23 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class Veinminer {
-    public static final int MAX_VEIN = Config.maxVeinSize;
-    public static final int MAX_RADIUS = 24;
+    public static final int SIZE = Config.maxVeinSize;
+    public static final int RADIUS = Config.maxVeinRadius;
 
     public static boolean canSeeVein(Player player, BlockState state) {
         return !player.isCreative() && state.is(ConventionalBlockTags.ORES) && player.getMainHandItem().isCorrectToolForDrops(state);
     }
 
+    public static boolean requireShift(Player player) {
+        return !Config.shiftToVeinmine || player.isShiftKeyDown();
+    }
+
     public static void mineOreVein(ServerLevel level, ServerPlayer player, BlockState state, BlockPos pos, boolean wasBroken) {
-        if (!wasBroken || !(canSeeVein(player, state) && player.isShiftKeyDown())) return;
+        if (!wasBroken || !(canSeeVein(player, state) && requireShift(player))) return;
 
         // Mine ore vein
         var tool = player.getMainHandItem();
-        for (var target : BlockBreaking.breadthFirstSearch(level, pos, TagUtil.matchOreTags(state), MAX_RADIUS, MAX_VEIN)) {
+        for (var target : BlockBreaking.breadthFirstSearch(level, pos, TagUtil.matchOreTags(state), RADIUS, SIZE)) {
             if (!BlockBreaking.canAfford(tool)) break; // Stop if tool durability is <= 1
             BlockBreaking.destroy(level, player, tool, level.getBlockState(target), target, Config.veinBreakParticles);
         }

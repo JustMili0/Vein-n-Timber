@@ -1,7 +1,10 @@
 package net.justmili.vnt.client.renderer;
 
 import net.justmili.vnt.content.mechanics.logic.Timber;
+import net.justmili.vnt.core.api.renderer.BlockGroupOutlineContext;
+import net.justmili.vnt.core.api.renderer.BlockGroupOutlineRenderer;
 import net.justmili.vnt.core.util.BlockBreaking;
+import net.justmili.vnt.core.util.TreeUtil;
 import net.justmili.vnt.core.util.client.OutlineRGB;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -22,7 +25,7 @@ public class TreeTrunkOutline {
         if (!isTree(level, group.blockPos())) return true;
 
         var color = OutlineRGB.get(player);
-        return BlockGroupOutlineRenderer.render(group, player, Timber::isLog, Timber.MAX_RADIUS, Timber.MAX_TRUNK,
+        return BlockGroupOutlineRenderer.render(group, player, TreeUtil::isLog, Timber.TRUNK_RADIUS, Timber.TRUNK_SIZE,
             color.a(), color.r(), color.g(), color.b(), true);
     }
 
@@ -31,7 +34,7 @@ public class TreeTrunkOutline {
         if (!origin.equals(originCache) || tickBucket != tickBucketCache) {
             originCache = origin.immutable();
             tickBucketCache = tickBucket;
-            treeCache = Timber.isTree(level, origin, BlockBreaking.breadthFirstSearch(level, origin, Timber::isLog, Timber.MAX_RADIUS, Timber.MAX_TRUNK));
+            treeCache = TreeUtil.isTree(level, origin, BlockBreaking.breadthFirstSearch(level, origin, TreeUtil::isLog, Timber.TRUNK_RADIUS, Timber.TRUNK_SIZE));
         }
         return treeCache;
     }

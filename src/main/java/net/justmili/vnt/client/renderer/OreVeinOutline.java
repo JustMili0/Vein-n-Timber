@@ -1,10 +1,12 @@
 package net.justmili.vnt.client.renderer;
 
 import net.justmili.vnt.content.mechanics.logic.Veinminer;
+import net.justmili.vnt.core.api.renderer.BlockGroupOutlineContext;
+import net.justmili.vnt.core.api.renderer.BlockGroupOutlineRenderer;
 import net.justmili.vnt.core.util.TagUtil;
 import net.justmili.vnt.core.util.client.OutlineRGB;
 
-public class VeinBlobOutline {
+public class OreVeinOutline {
 
     // Render white outline around the whole ore vein when the player looks at it with a pickaxe in hand
     public static boolean render(BlockGroupOutlineContext group) {
@@ -16,7 +18,7 @@ public class VeinBlobOutline {
         if (!Veinminer.canSeeVein(player, state)) return true;
 
         var color = OutlineRGB.get(player);
-        return BlockGroupOutlineRenderer.render(group, player, TagUtil.matchOreTags(state), Veinminer.MAX_RADIUS, Veinminer.MAX_VEIN,
+        return BlockGroupOutlineRenderer.render(group, player, TagUtil.matchOreTags(state), Veinminer.RADIUS, Veinminer.SIZE,
             color.a(), color.r(), color.g(), color.b(), true);
     }
 }

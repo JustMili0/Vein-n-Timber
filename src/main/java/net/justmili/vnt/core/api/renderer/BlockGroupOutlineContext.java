@@ -1,4 +1,4 @@
-package net.justmili.vnt.client.renderer;
+package net.justmili.vnt.core.api.renderer;
 
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
