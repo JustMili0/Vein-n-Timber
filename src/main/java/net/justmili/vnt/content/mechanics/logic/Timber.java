@@ -47,12 +47,14 @@ public class Timber {
         // Chop tree
         int logIndex = 0;
         for (var log : logs) {
+            if (!level.mayInteract(player, log)) continue;
             if (!BlockBreaking.canAfford(tool)) break; // Stop if tool durability is <= 1
             BlockBreaking.destroy(level, player, tool, level.getBlockState(log), trunkDropPlace, pos, log, trunkParticles, trunkSounds, logIndex++, true);
         }
         if (Config.breakTreeLeaves) {
             int leafIndex = 0;
             for (var leaf : leaves) {
+                if (!level.mayInteract(player, leaf)) continue;
                 if (!BlockBreaking.canAfford(tool) && leavesDamageTool) break; // Stop if tool durability is <= 1
                 BlockBreaking.destroy(level, player, tool, level.getBlockState(leaf), leavesDropPlace, pos, leaf, leavesParticles, leavesSounds, leafIndex++, leavesDamageTool);
             }

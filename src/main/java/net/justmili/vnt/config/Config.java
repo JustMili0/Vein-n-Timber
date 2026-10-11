@@ -22,6 +22,7 @@ public class Config {
     public static DropPlacements trunkDropPlace;
     public static DropPlacements leavesDropPlace;
     public static boolean includeLeavesDrops;
+    public static boolean replantTrees;
 
     public static boolean veinBreakParticles;
     public static boolean trunkBreakParticles;
@@ -46,6 +47,7 @@ public class Config {
         trunkDropPlace = DropPlacements.WHERE_BROKEN;
         leavesDropPlace = DropPlacements.WHERE_BROKEN;
         includeLeavesDrops = false;
+        replantTrees = true;
     }
 
     public static void initClient() {

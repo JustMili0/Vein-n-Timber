@@ -1,12 +1,12 @@
 package net.justmili.vnt.core.util.search;
 
+import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,27 +32,28 @@ public class SpreadSearch implements SearchAlgorithm {
     public List<BlockPos> biSearch(Level level, Collection<BlockPos> origins, BiPredicate<BlockState, BlockState> canSpread, int maxSize) {
         var found = new ArrayList<BlockPos>();
         var visited = new LongOpenHashSet();
-        var queue = new ArrayDeque<BlockPos>();
+        var queue = new LongArrayFIFOQueue();
 
         // Mark every origin as visited so the spread never walks back into them
         for (var pos : origins) {
             visited.add(pos.asLong());
-            queue.add(pos);
+            queue.enqueue(pos.asLong());
         }
 
         while (!queue.isEmpty() && found.size() < maxSize) {
-            var current = queue.poll();
-            var currentState = level.getBlockState(current);
+            var pos = BlockPos.of(queue.dequeueLong());
+            var state = level.getBlockState(pos);
 
             for (var direction : Direction.values()) {
                 if (found.size() >= maxSize) break;
 
-                var next = current.relative(direction);
-                if (!visited.add(next.asLong())) continue;
-                if (!canSpread.test(currentState, level.getBlockState(next))) continue;
+                var next = pos.relative(direction);
+                var nextLong = next.asLong();
+                if (!visited.add(nextLong)) continue;
+                if (!canSpread.test(state, level.getBlockState(next))) continue;
 
                 found.add(next);
-                queue.add(next);
+                queue.enqueue(nextLong);
             }
         }
         return found;

@@ -47,7 +47,7 @@ public class BlockBreaking {
         state.spawnAfterBreak(level, pos, tool, true);
         BlockBreaking.playEffects(level, state, pos, particles, soundPercentage, index);
 
-        level.setBlock(pos, state.getFluidState().createLegacyBlock(), Block.UPDATE_ALL);
+        level.setBlock(pos, state.getFluidState().createLegacyBlock(), Block.UPDATE_CLIENTS);
         if (damageTool) {
             tool.mineBlock(level, state, pos, player);
         } else {

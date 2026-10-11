@@ -6,11 +6,11 @@ import net.justmili.vnt.core.registries.EventRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VnT implements ModInitializer {
-    public static final String ID = "bvat";
-    public static final String NAME = "Basic Veinminer & Timber";
+public class VeinAndTimber implements ModInitializer {
+    public static final String ID = "vein_n_timber";
+    public static final String NAME = "Vein n' Timber";
     public static final String BUILD = "1.0.0";
-    public static final Logger LOGGER = LoggerFactory.getLogger(NAME);
+    public static final Logger LOGGER = LoggerFactory.getLogger(VeinAndTimber.class);
 
     @Override
     public void onInitialize() {

@@ -4,10 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -22,15 +19,27 @@ public class CubeSearch implements SearchAlgorithm {
 
     @Override
     public List<BlockPos> search(Level level, BlockPos origin, Predicate<BlockState> stateMatch, int maxRadius, int maxSize) {
-        var found = new ArrayList<BlockPos>();
+        if (maxSize <= 0) return List.of();
+
+        var nearestFirst = Comparator.comparingDouble((BlockPos pos) -> pos.distSqr(origin));
+        var farthestFirst = nearestFirst.reversed();
+        var nearest = new PriorityQueue<>(farthestFirst);
 
         for (var pos : withinClosed(origin, maxRadius)) {
-            if (stateMatch.test(level.getBlockState(pos))) found.add(pos.immutable());
+            if (!stateMatch.test(level.getBlockState(pos))) continue;
+            var current = pos.immutable();
+
+            if (nearest.size() < maxSize) {
+                nearest.add(current);
+            } else if (nearestFirst.compare(current, nearest.peek()) < 0) {
+                nearest.poll();
+                nearest.add(current);
+            }
         }
 
-        // Sort by distance so the closest blocks are returned first
-        found.sort(Comparator.comparingDouble(pos -> pos.distSqr(origin)));
-        return found.size() > maxSize? new ArrayList<>(found.subList(0, maxSize)) : found;
+        var found = new ArrayList<>(nearest);
+        found.sort(nearestFirst);
+        return found;
     }
 
     @Override
