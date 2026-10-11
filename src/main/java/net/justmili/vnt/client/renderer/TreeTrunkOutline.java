@@ -4,6 +4,7 @@ import net.justmili.vnt.content.mechanics.logic.Timber;
 import net.justmili.vnt.core.api.renderer.BlockGroupOutlineContext;
 import net.justmili.vnt.core.api.renderer.BlockGroupOutlineRenderer;
 import net.justmili.vnt.core.util.BlockBreaking;
+import net.justmili.vnt.core.util.Maths;
 import net.justmili.vnt.core.util.TreeUtil;
 import net.justmili.vnt.core.util.client.OutlineRGB;
 import net.minecraft.core.BlockPos;
@@ -30,7 +31,7 @@ public class TreeTrunkOutline {
     }
 
     private static boolean isTree(Level level, BlockPos origin) {
-        long tickBucket = level.getGameTime() / 10;
+        long tickBucket = Maths.floorDiv(level.getGameTime(), 10);
         if (!origin.equals(originCache) || tickBucket != tickBucketCache) {
             originCache = origin.immutable();
             tickBucketCache = tickBucket;

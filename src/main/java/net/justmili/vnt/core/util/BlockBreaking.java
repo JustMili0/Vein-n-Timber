@@ -3,8 +3,11 @@ package net.justmili.vnt.core.util;
 import net.justmili.vnt.config.DropPlacements;
 import net.justmili.vnt.core.util.search.SearchAlgorithms;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -37,14 +40,13 @@ public class BlockBreaking {
         }
     }
 
-    // TODO: Do some fuckery (probably mixins) to allow this to not play all block breaking sounds but only a percentage of them
-    public static void destroy(ServerLevel level, ServerPlayer player, ItemStack tool, BlockState state, DropPlacements dropPlace, BlockPos origin, BlockPos pos, boolean playEffects, boolean damageTool) {
+    public static void destroy(ServerLevel level, ServerPlayer player, ItemStack tool, BlockState state, DropPlacements dropPlace, BlockPos origin, BlockPos pos, boolean particles, float soundPercentage, int index, boolean damageTool) {
         if (state.isAir() || state.getDestroySpeed(level, pos) < 0) return;
         if (!player.hasCorrectToolForDrops(state)) return;
 
         BlockBreaking.drop(level, player, tool, state, pos, dropPlace, origin);
         state.spawnAfterBreak(level, pos, tool, true);
-        if (playEffects) level.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state));
+        BlockBreaking.playEffects(level, state, pos, particles, soundPercentage, index);
 
         level.setBlock(pos, state.getFluidState().createLegacyBlock(), Block.UPDATE_ALL);
         if (damageTool) {
@@ -55,6 +57,19 @@ public class BlockBreaking {
         }
         level.gameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Context.of(player, state));
         player.awardStat(Stats.BLOCK_MINED.get(state.getBlock()));
+    }
+
+    private static void playEffects(ServerLevel level, BlockState state, BlockPos pos, boolean particles, float soundPercentage, int index) {
+        boolean sound = soundPercentage > 0f && Maths.ceil((index + 1) * soundPercentage) > Maths.ceil(index * soundPercentage);
+
+        if (particles && sound) {
+            level.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state));
+        } else if (sound) {
+            var type = state.getSoundType();
+            level.playSound(null, pos, type.getBreakSound(), SoundSource.BLOCKS, Maths.lerp(type.getVolume(), 1f, 0.5f), type.getPitch() * 0.8f);
+        } else if (particles) {
+            level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 20, 0.3, 0.3, 0.3, 0.05);
+        }
     }
 
     public static List<BlockPos> breadthFirstSearch(Level level, BlockPos origin, Predicate<BlockState> stateMatch, int maxRadius, int maxSize) {

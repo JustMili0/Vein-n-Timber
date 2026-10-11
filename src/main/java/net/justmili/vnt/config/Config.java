@@ -27,6 +27,7 @@ public class Config {
     public static boolean trunkBreakParticles;
     public static boolean leavesBreakParticles;
     public static float veinBreakSoundPercentage;
+    public static float trunkBreakSoundsPercentage;
     public static float leavesBreakSoundPercentage;
     public static FloatColor inactiveOutlineColor;
     public static FloatColor activeOutlineColor;
@@ -44,7 +45,7 @@ public class Config {
         veinDropPlace = DropPlacements.ORIGIN_POS;
         trunkDropPlace = DropPlacements.WHERE_BROKEN;
         leavesDropPlace = DropPlacements.WHERE_BROKEN;
-        includeLeavesDrops = false; // Only allow changing this if leavesDropPlace is PLAYER_INV or PLAYER_POS
+        includeLeavesDrops = false;
     }
 
     public static void initClient() {
@@ -52,8 +53,9 @@ public class Config {
         trunkBreakParticles = false;
         leavesBreakParticles = true;
         veinBreakSoundPercentage = 1f;
-        leavesBreakSoundPercentage = 0.01f;
-        inactiveOutlineColor = new FloatColor(0.6f, 0.35f);
+        trunkBreakSoundsPercentage = 0.8f;
+        leavesBreakSoundPercentage = 0.02f;
+        inactiveOutlineColor = new FloatColor(0.6f, 0.4f);
         activeOutlineColor = new FloatColor(0.6f, 1f);
     }
 }

@@ -34,6 +34,8 @@ public class Timber {
         var tool = player.getMainHandItem();
         boolean trunkParticles = Config.trunkBreakParticles;
         boolean leavesParticles = Config.leavesBreakParticles;
+        float trunkSounds = Config.trunkBreakSoundsPercentage;
+        float leavesSounds = Config.leavesBreakSoundPercentage;
         boolean leavesDamageTool = Config.leavesDamageTool;
         var trunkDropPlace = Config.trunkDropPlace;
         var leavesDropPlace = Config.leavesDropPlace;
@@ -43,14 +45,16 @@ public class Timber {
         ) leavesDropPlace = DropPlacements.WHERE_BROKEN;
 
         // Chop tree
+        int logIndex = 0;
         for (var log : logs) {
             if (!BlockBreaking.canAfford(tool)) break; // Stop if tool durability is <= 1
-            BlockBreaking.destroy(level, player, tool, level.getBlockState(log), trunkDropPlace, pos, log, trunkParticles, true);
+            BlockBreaking.destroy(level, player, tool, level.getBlockState(log), trunkDropPlace, pos, log, trunkParticles, trunkSounds, logIndex++, true);
         }
         if (Config.breakTreeLeaves) {
+            int leafIndex = 0;
             for (var leaf : leaves) {
                 if (!BlockBreaking.canAfford(tool) && leavesDamageTool) break; // Stop if tool durability is <= 1
-                BlockBreaking.destroy(level, player, tool, level.getBlockState(leaf), leavesDropPlace, pos, leaf, leavesParticles, leavesDamageTool);
+                BlockBreaking.destroy(level, player, tool, level.getBlockState(leaf), leavesDropPlace, pos, leaf, leavesParticles, leavesSounds, leafIndex++, leavesDamageTool);
             }
         }
     }

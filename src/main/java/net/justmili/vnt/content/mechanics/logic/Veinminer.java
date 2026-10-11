@@ -27,9 +27,10 @@ public class Veinminer {
 
         // Mine ore vein
         var tool = player.getMainHandItem();
+        int index = 0;
         for (var target : BlockBreaking.breadthFirstSearch(level, pos, TagUtil.matchOreTags(state), RADIUS, SIZE)) {
             if (!BlockBreaking.canAfford(tool)) break; // Stop if tool durability is <= 1
-            BlockBreaking.destroy(level, player, tool, level.getBlockState(target), Config.veinDropPlace, pos, target, Config.veinBreakParticles, true);
+            BlockBreaking.destroy(level, player, tool, level.getBlockState(target), Config.veinDropPlace, pos, target, Config.veinBreakParticles, Config.veinBreakSoundPercentage, index++, true);
         }
     }
 }

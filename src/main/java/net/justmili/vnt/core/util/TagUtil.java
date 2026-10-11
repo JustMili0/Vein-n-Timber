@@ -11,7 +11,7 @@ public class TagUtil {
 
     public static Predicate<BlockState> matchBlockTags(BlockState state, String namespace, String containsPath) {
         var matchingTags = new ArrayList<TagKey<Block>>();
-        var tagIterator = state./*? if < 26.1 {*/getTags()/*?} else {*//*tags()*//*?}*/.iterator();
+        var tagIterator = state./*? if < 26.1 {*//*getTags()*//*?} else {*/tags()/*?}*/.iterator();
         while (tagIterator.hasNext()) {
             var tag = tagIterator.next();
             var tagId = tag.location();
