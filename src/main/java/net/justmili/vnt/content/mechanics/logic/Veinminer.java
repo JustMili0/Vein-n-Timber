@@ -1,6 +1,7 @@
 package net.justmili.vnt.content.mechanics.logic;
 
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalBlockTags;
+import net.justmili.vnt.config.BreakEffectType;
 import net.justmili.vnt.config.Config;
 import net.justmili.vnt.core.util.BlockBreaking;
 import net.justmili.vnt.core.util.TagUtil;
@@ -31,7 +32,7 @@ public class Veinminer {
         for (var ore : BlockBreaking.breadthFirstSearch(level, pos, TagUtil.matchOreTags(state), RADIUS, SIZE)) {
             if (!level.mayInteract(player, ore)) continue;
             if (!BlockBreaking.canAfford(tool)) break; // Stop if tool durability is <= 1
-            BlockBreaking.destroy(level, player, tool, level.getBlockState(ore), Config.veinDropPlace, pos, ore, Config.veinBreakParticles, Config.veinBreakSoundPercentage, index++, true);
+            BlockBreaking.destroy(level, player, tool, level.getBlockState(ore), Config.veinDropPlace, pos, ore, BreakEffectType.VEIN, index++, true);
         }
     }
 }

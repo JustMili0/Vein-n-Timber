@@ -1,5 +1,5 @@
-- Fix: Particles and sounds don't work on dedicated servers
 - Optimize more, idk
+  - After optimizations, change version to 1.0.0
 
 - Publish
 - Add to maven (also add last AS and SiB versions to maven)

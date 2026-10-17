@@ -1,5 +1,6 @@
 package net.justmili.vnt.content.mechanics.logic;
 
+import net.justmili.vnt.config.BreakEffectType;
 import net.justmili.vnt.config.Config;
 import net.justmili.vnt.config.DropPlacements;
 import net.justmili.vnt.core.util.BlockBreaking;
@@ -32,10 +33,6 @@ public class Timber {
         var leaves = TreeUtil.getConnectedLeaves(level, pos, logs, LEAVES_SIZE);
 
         var tool = player.getMainHandItem();
-        boolean trunkParticles = Config.trunkBreakParticles;
-        boolean leavesParticles = Config.leavesBreakParticles;
-        float trunkSounds = Config.trunkBreakSoundsPercentage;
-        float leavesSounds = Config.leavesBreakSoundPercentage;
         boolean leavesDamageTool = Config.leavesDamageTool;
         var trunkDropPlace = Config.trunkDropPlace;
         var leavesDropPlace = Config.leavesDropPlace;
@@ -49,14 +46,14 @@ public class Timber {
         for (var log : logs) {
             if (!level.mayInteract(player, log)) continue;
             if (!BlockBreaking.canAfford(tool)) break; // Stop if tool durability is <= 1
-            BlockBreaking.destroy(level, player, tool, level.getBlockState(log), trunkDropPlace, pos, log, trunkParticles, trunkSounds, logIndex++, true);
+            BlockBreaking.destroy(level, player, tool, level.getBlockState(log), trunkDropPlace, pos, log, BreakEffectType.TRUNK, logIndex++, true);
         }
         if (Config.breakTreeLeaves) {
             int leafIndex = 0;
             for (var leaf : leaves) {
                 if (!level.mayInteract(player, leaf)) continue;
                 if (!BlockBreaking.canAfford(tool) && leavesDamageTool) break; // Stop if tool durability is <= 1
-                BlockBreaking.destroy(level, player, tool, level.getBlockState(leaf), leavesDropPlace, pos, leaf, leavesParticles, leavesSounds, leafIndex++, leavesDamageTool);
+                BlockBreaking.destroy(level, player, tool, level.getBlockState(leaf), leavesDropPlace, pos, leaf, BreakEffectType.LEAVES, leafIndex++, leavesDamageTool);
             }
         }
     }

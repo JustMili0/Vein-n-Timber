@@ -3,6 +3,8 @@ package net.justmili.vnt;
 import net.fabricmc.api.ModInitializer;
 import net.justmili.vnt.config.Config;
 import net.justmili.vnt.core.registries.EventRegistry;
+import net.justmili.vnt.core.registries.PacketRegistry;
+import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +18,11 @@ public class VeinAndTimber implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("Initializing {} ({}) version {}", NAME, ID, BUILD);
         Config.initCommon();
+        PacketRegistry.init();
         EventRegistry.init();
+    }
+
+    public static Identifier asId(String path) {
+        return Identifier.fromNamespaceAndPath(ID, path);
     }
 }

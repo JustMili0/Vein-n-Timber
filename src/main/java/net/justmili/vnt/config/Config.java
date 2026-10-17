@@ -30,6 +30,7 @@ public class Config {
     public static float veinBreakSoundPercentage;
     public static float trunkBreakSoundsPercentage;
     public static float leavesBreakSoundPercentage;
+
     public static FloatColor inactiveOutlineColor;
     public static FloatColor activeOutlineColor;
 
@@ -48,15 +49,19 @@ public class Config {
         leavesDropPlace = DropPlacements.WHERE_BROKEN;
         includeLeavesDrops = false;
         replantTrees = true;
-    }
 
-    public static void initClient() {
+        // Somewhat shared by server and client
+        // If client doesn't have the mod installed, mod uses server defaults to play sounds
+        // Otherwise, it plays from client's config
         veinBreakParticles = true;
         trunkBreakParticles = false;
         leavesBreakParticles = true;
         veinBreakSoundPercentage = 1f;
         trunkBreakSoundsPercentage = 0.8f;
         leavesBreakSoundPercentage = 0.02f;
+    }
+
+    public static void initClient() {
         inactiveOutlineColor = new FloatColor(0.6f, 0.4f);
         activeOutlineColor = new FloatColor(0.6f, 1f);
     }

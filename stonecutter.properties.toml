@@ -3,7 +3,7 @@ mod.id = "vein_n_timber"
 mod.name = "Vein n' Timber"
 mod.archives_base_name = "VeinAndTimber"
 mod.group = "net.justmili.vnt"
-mod.version = "1.0.0"
+mod.version = "1.0.0-beta.5"
 
 deps.fabric_loader = "0.19.5"
 loomx.loom_version = "1.18-SNAPSHOT"

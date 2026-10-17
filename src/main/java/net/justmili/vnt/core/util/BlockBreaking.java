@@ -1,10 +1,16 @@
 package net.justmili.vnt.core.util;
 
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.justmili.vnt.config.BreakEffectType;
 import net.justmili.vnt.config.DropPlacements;
+import net.justmili.vnt.core.network.BreakEffectsPacket;
 import net.justmili.vnt.core.util.search.SearchAlgorithms;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -12,6 +18,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 
@@ -19,6 +26,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public class BlockBreaking {
+    private static final double EFFECTS_RANGE = 64;
 
     public static boolean canAfford(ItemStack tool) {
         if (!tool.isDamageableItem()) return true;
@@ -39,13 +47,13 @@ public class BlockBreaking {
         }
     }
 
-    public static void destroy(ServerLevel level, ServerPlayer player, ItemStack tool, BlockState state, DropPlacements dropPlace, BlockPos origin, BlockPos pos, boolean particles, float soundPercentage, int index, boolean damageTool) {
+    public static void destroy(ServerLevel level, ServerPlayer player, ItemStack tool, BlockState state, DropPlacements dropPlace, BlockPos origin, BlockPos pos, BreakEffectType effectGroup, int index, boolean damageTool) {
         if (state.isAir() || state.getDestroySpeed(level, pos) < 0) return;
         if (!player.hasCorrectToolForDrops(state)) return;
 
         BlockBreaking.drop(level, player, tool, state, pos, dropPlace, origin);
         state.spawnAfterBreak(level, pos, tool, true);
-        BlockBreaking.playEffects(level, state, pos, particles, soundPercentage, index);
+        BlockBreaking.playEffects(level, state, pos, effectGroup, index);
 
         level.setBlock(pos, state.getFluidState().createLegacyBlock(), Block.UPDATE_CLIENTS);
         if (damageTool) {
@@ -58,21 +66,41 @@ public class BlockBreaking {
         player.awardStat(Stats.BLOCK_MINED.get(state.getBlock()));
     }
 
-    private static void playEffects(ServerLevel level, BlockState state, BlockPos pos, boolean particles, float soundPercentage, int index) {
-        boolean sound = soundPercentage > 0f && Maths.ceil((index + 1) * soundPercentage) > Maths.ceil(index * soundPercentage);
+    private static void playEffects(ServerLevel level, BlockState state, BlockPos pos, BreakEffectType effects, int index) {
+        boolean particles = effects.particles();
+        boolean sounds = effects.playAt(index);
+        int stateId = Block.getId(state);
+        var payload = new BreakEffectsPacket(pos, stateId, effects, index);
+        var sound = state.getSoundType();
+        int x = pos.getX();
+        int y = pos.getY();
+        int z = pos.getZ();
 
-        if (particles && sound) {
-            // LevelEvent constant name changed in 26.3 so it's just better to use the numerical value
-            level.levelEvent(2001, pos, Block.getId(state));
-        } else if (sound) {
-            var type = state.getSoundType();
-            level.playSound(null, pos, type.getBreakSound(), SoundSource.BLOCKS, type.getVolume(), type.getPitch());
-        } else if (particles) {
-            level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 20, 0.3, 0.3, 0.3, 0.05);
+        for (var player : level.players()) {
+            if (player.distanceToSqr(x, y, z) > EFFECTS_RANGE * EFFECTS_RANGE) continue;
+
+            // Clients with the mod play the effects with their own config, the rest get the server defaults
+            if (ServerPlayNetworking.canSend(player, BreakEffectsPacket.TYPE)) {
+                ServerPlayNetworking.send(player, payload);
+            } else if (particles && sounds) {
+                // LevelEvent constant name changed in 26.3 so it's just better to use the numerical value
+                player.connection.send(new ClientboundLevelEventPacket(2001, pos, stateId, false));
+            } else if (sounds) {
+                sendBreakSoundPacket(player, level, sound, pos);
+            } else if (particles) {
+                level.sendParticles(player, new BlockParticleOption(ParticleTypes.BLOCK, state), false, /*? if >=1.21.4 {*/false, /*?}*/x, y, z, 20, 0.3, 0.3, 0.3, 0.05);
+            }
         }
     }
 
     public static List<BlockPos> breadthFirstSearch(Level level, BlockPos origin, Predicate<BlockState> stateMatch, int maxRadius, int maxSize) {
         return SearchAlgorithms.BREADTH_FIRST_SEARCH.search(level, origin, stateMatch, maxRadius, maxSize);
+    }
+
+    public static void sendBreakSoundPacket(ServerPlayer player, ServerLevel level, SoundType sound, BlockPos pos) {
+        player.connection.send(new ClientboundSoundPacket(
+            BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound.getBreakSound()), SoundSource.BLOCKS, pos.getX(), pos.getY(), pos.getZ(),
+            Sounds.randomVolume(sound), Sounds.randomPitch(sound), level.getRandom().nextLong()
+        ));
     }
 }
