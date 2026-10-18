@@ -5,6 +5,7 @@ import net.fabricmc.api.Environment;
 import net.justmili.vnt.core.network.BreakEffectsPacket;
 import net.justmili.vnt.core.util.Sounds;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.Block;
 
@@ -16,18 +17,26 @@ public class BreakEffectsPlayer {
 
         var effects = packet.effectType();
         boolean particles = effects.particles();
-        boolean sounds = effects.playAt(packet.index());
-        var pos = packet.pos();
-        var state = Block.stateById(packet.stateId());
+        if (!particles && effects.soundPercentage() <= 0) return;
 
-        if (particles && sounds) {
-            // LevelEvent constant name changed in 26.3 so it's just better to use the numerical value
-            level.levelEvent(2001, pos, packet.stateId());
-        } else if (sounds) {
-            var sound = state.getSoundType();
-            level.playLocalSound(pos, sound.getBreakSound(), SoundSource.BLOCKS, Sounds.randomVolume(sound), Sounds.randomPitch(sound), false);
-        } else if (particles) {
-            level.addDestroyBlockEffect(pos, state);
+        var positions = packet.positions();
+        var stateIds = packet.stateIds();
+        for (int index = 0; index < positions.length; index++) {
+            boolean sounds = effects.playAt(index);
+            if (!particles && !sounds) continue;
+
+            var pos = BlockPos.of(positions[index]);
+            var state = Block.stateById(stateIds[index]);
+
+            if (particles && sounds) {
+                // LevelEvent constant name changed in 26.3 so it's just better to use the numerical value
+                level.levelEvent(2001, pos, stateIds[index]);
+            } else if (sounds) {
+                var sound = state.getSoundType();
+                level.playLocalSound(pos, sound.getBreakSound(), SoundSource.BLOCKS, Sounds.randomVolume(sound), Sounds.randomPitch(sound), false);
+            } else {
+                level.addDestroyBlockEffect(pos, state);
+            }
         }
     }
 }

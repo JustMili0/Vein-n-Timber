@@ -19,8 +19,16 @@ public class TagUtil {
             if (tagId.getNamespace().equals(namespace) && tagId.getPath().startsWith(containsPath)) matchingTags.add(tag);
         }
 
-        if (matchingTags.isEmpty()) return s -> s.is(state.getBlock());
+        // Same block as the given one always has the tags, so comparing it first skips looking them up
+        var block = state.getBlock();
+        if (matchingTags.isEmpty()) return s -> s.is(block);
+        if (matchingTags.size() == 1) {
+            // .get(0); for possible 1.20.1 port (Java 17)
+            return s -> s.is(block) || s.is(matchingTags.get(0));
+        }
+
         return s -> {
+            if (s.is(block)) return true;
             for (var tag : matchingTags) {
                 if (s.is(tag)) return true;
             }

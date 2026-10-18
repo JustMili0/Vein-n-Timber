@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.tag.convention.v2.ConventionalBlockTags;
 import net.justmili.vnt.config.BreakEffectType;
 import net.justmili.vnt.config.Config;
 import net.justmili.vnt.core.util.BlockBreaking;
+import net.justmili.vnt.core.util.BreakEffectsBatch;
 import net.justmili.vnt.core.util.TagUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -26,13 +27,15 @@ public class Veinminer {
     public static void mineOreVein(ServerLevel level, ServerPlayer player, BlockState state, BlockPos pos, boolean wasBroken) {
         if (!wasBroken || !(canSeeVein(player, state) && requireShift(player))) return;
 
-        // Mine ore vein
+        // Mine ore vein and play effects
         var tool = player.getMainHandItem();
-        int index = 0;
-        for (var ore : BlockBreaking.breadthFirstSearch(level, pos, TagUtil.matchOreTags(state), RADIUS, SIZE)) {
+        var ores = BlockBreaking.breadthFirstSearch(level, pos, TagUtil.matchOreTags(state), RADIUS, SIZE);
+        var effects = new BreakEffectsBatch(BreakEffectType.VEIN, ores.size());
+        for (var ore : ores) {
             if (!level.mayInteract(player, ore)) continue;
             if (!BlockBreaking.canAfford(tool)) break; // Stop if tool durability is <= 1
-            BlockBreaking.destroy(level, player, tool, level.getBlockState(ore), Config.veinDropPlace, pos, ore, BreakEffectType.VEIN, index++, true);
+            BlockBreaking.destroy(level, player, tool, level.getBlockState(ore), pos, ore, Config.veinDropPlace, effects, true);
         }
+        BlockBreaking.playEffects(level, effects);
     }
 }

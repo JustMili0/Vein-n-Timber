@@ -1,5 +1,4 @@
-- Optimize more, idk
-  - After optimizations, change version to 1.0.0
+- Test if everything works fine
 
 - Publish
 - Add to maven (also add last AS and SiB versions to maven)

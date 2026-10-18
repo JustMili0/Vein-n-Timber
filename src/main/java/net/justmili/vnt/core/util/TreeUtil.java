@@ -14,8 +14,9 @@ public class TreeUtil {
 
     public static boolean isTree(Level level, BlockPos origin, List<BlockPos> logs) {
         if (isNaturalLeafConnected(level, origin)) return true;
-        for (var log : logs) {
-            if (isNaturalLeafConnected(level, log)) return true;
+        // Go from furthest first since leaves are likely to be far away from origin
+        for (int logIndex = logs.size() - 1; logIndex >= 0; logIndex--) {
+            if (isNaturalLeafConnected(level, logs.get(logIndex))) return true;
         }
         return false;
     }
