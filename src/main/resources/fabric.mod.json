@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "id": "${id}",
-  "version": "${version}",
-  "name": "${name}",
-  "description": "A really basic veinminer and timber mod in one",
-  "authors": ["JustMili"],
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": ["${mod_authors}"],
   "contributors": [
     "CallMeArthys - Mod Icon"
   ],
@@ -13,25 +13,28 @@
     "sources": "https://github.com/JustMili0/Vein-n-Timber",
     "issues": "https://github.com/JustMili0/Vein-n-Timber/issues"
   },
-  "license": "MIT",
+  "license": "${mod_license}",
   "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
       "net.justmili.vnt.VeinAndTimber"
     ],
-    "client" : [
+    "client": [
       "net.justmili.vnt.client.FabricClient"
     ]
   },
   "mixins": [
-    "vnt.mixins.json"
+    "${mod_id}.mixins.json"
   ],
-  "accessWidener": "vnt.accesswidener",
+  "accessWidener": "vein_n_timber.accesswidener",
   "depends": {
-    "minecraft": "${minecraft}",
-    "fabricloader": ">=${loader}",
-    "fabric-api": "*"
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric-api": ">=${fabric_api_version}",
+    "minecraft": "${minecraft_version_constraint}"
+  },
+  "recommends": {
+    "modmenu": "*"
   },
   "custom": {
     "modmenu": {

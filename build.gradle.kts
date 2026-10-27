@@ -1,6 +1,7 @@
 plugins {
     // This plugin applies the correct loom variant based on the Minecraft version
     id("dev.kikugie.loom-back-compat")
+    alias(libs.plugins.publish)
 }
 
 // DO NOT set group = ...!
@@ -15,9 +16,11 @@ val requiredJava: JavaVersion = when {
     else -> JavaVersion.VERSION_1_8
 }
 
-// This can be used for publishing on Modrinth and Curseforge
-val compatibleVersions: List<String> = sc.properties.rawOrNull("mod", "mc_releases")
-    ?.asList().orEmpty().map { it.toString() }
+// Used for publishing on Modrinth and Curseforge
+val compatibleVersions: List<String> = sc.properties.rawOrNull("mod", "mc_releases")?.asList().orEmpty().map { it.toString() }
+
+// Versions before 26.1 are obfuscated (remapped), 26.1+ are not
+val obfuscated = sc.current.parsed < "26.1"
 
 repositories {
     /**
@@ -30,7 +33,13 @@ repositories {
     }
     strictMaven("https://www.cursemaven.com", "CurseForge", "curse.maven")
     strictMaven("https://api.modrinth.com/maven", "Modrinth", "maven.modrinth")
-    maven("https://maven.terraformersmc.com/") // Mod Menu
+    strictMaven("https://maven.terraformersmc.com/", "TerraformersMC", "com.terraformersmc") // Mod Menu
+    strictMaven("https://maven.bawnorton.com/releases", "Bawnorton", "com.github.bawnorton") // MixinSquared
+
+    mavenCentral()
+    maven("https://repo.spongepowered.org/repository/maven-public/")
+    maven("https://maven.enjarai.dev/mirrors") // MixinSquared mirror
+    maven("https://maven.lumynitystudios.net/") // Lumynity Studios' mods
 }
 
 dependencies {
@@ -40,15 +49,18 @@ dependencies {
 
     // Use `mod{dependency type}` even on 26.1+ - loom-back-compat converts them
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
+
+    // Fabric dependencies go here
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
 
+    // Other
     modImplementation("com.terraformersmc:modmenu:${property("deps.mod_menu")}")
 }
 
 loom {
     fabricModJsonPath = rootProject.file("src/main/resources/fabric.mod.json") // Useful for interface injection
     accessWidenerPath = sc.process(
-        rootProject.file("src/main/resources/vnt.accesswidener"),
+        rootProject.file("src/main/resources/vein_n_timber.accesswidener"),
         "build/processed.accesswidener"
     )
 
@@ -82,11 +94,15 @@ tasks {
         }
 
         val props = buildMap {
-            register("id", sc.properties["mod.id"])
-            register("name", sc.properties["mod.name"])
-            register("version", sc.properties["mod.version"])
-            register("minecraft", sc.properties["mod.mc_compat"])
-            register("loader", Regex("\\d+\\.\\d+").find(sc.properties.get<String>("deps.fabric_loader"))!!.value)
+            register("mod_id", sc.properties["mod.id"])
+            register("mod_name", sc.properties["mod.name"])
+            register("mod_version", sc.properties["mod.version"])
+            register("mod_description", sc.properties["mod.description"])
+            register("mod_authors", sc.properties["mod.authors"])
+            register("mod_license", sc.properties["mod.license"])
+            register("fabric_loader_version", sc.properties["deps.fabric_loader"])
+            register("fabric_api_version", sc.properties["deps.fabric_api"])
+            register("minecraft_version_constraint", sc.properties["mod.mc_compat"])
         }
 
         filesMatching("fabric.mod.json") { expand(props) }
@@ -97,7 +113,7 @@ tasks {
 
     // Includes the license file in the built mod
     withType<Jar> {
-        from("../../LICENSE") { rename { it } }
+        from(rootProject.file("LICENSE")) { rename { it } }
     }
 
     register<Copy>("buildAndCollect") {
@@ -108,5 +124,26 @@ tasks {
         // loomx.modJar returns the jar task for the applied loom variant
         from(loomx.modJar.flatMap { it.archiveFile })
         into(rootProject.layout.buildDirectory.file("libs/${project.property("mod.version")}"))
+    }
+}
+
+publishMods {
+    file = loomx.modJar.flatMap { it.archiveFile }
+    modLoaders.add("fabric")
+
+    // TODO: bring back one build-logic is ported
+    //changelog = readChangelogFromBranch("origin/rep-info", ".Changelogs/${project.property("mod.version")}-Changelog.md")
+    changelog = "Initial release"
+
+    modrinth {
+        accessToken = providers.gradleProperty("modrinth_token")
+        projectId = "sS6j8wrN"
+
+        minecraftVersions.addAll(compatibleVersions)
+        environment = SERVER_ONLY_CLIENT_OPTIONAL
+        // STABLE, BETA, ALPHA
+        type = STABLE
+
+        requires("fabric-api")
     }
 }

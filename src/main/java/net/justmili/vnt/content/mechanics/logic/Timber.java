@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class Timber {
     public static int TRUNK_SIZE = Config.maxTrunkSize;
-    public static int TRUNK_RADIUS = Config.maxTrunkRadius;
+    public static int TRUNK_RADIUS = TRUNK_SIZE / 4;
     public static int LEAVES_SIZE = Config.maxLeavesSize;
 
     public static boolean canSeeTree(Player player, BlockState state) {

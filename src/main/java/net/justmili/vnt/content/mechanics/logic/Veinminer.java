@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class Veinminer {
     public static final int SIZE = Config.maxVeinSize;
-    public static final int RADIUS = Config.maxVeinRadius;
+    public static final int RADIUS = (int) (SIZE * 1.5f);
 
     public static boolean canSeeVein(Player player, BlockState state) {
         return !player.isCreative() && state.is(ConventionalBlockTags.ORES) && player.getMainHandItem().isCorrectToolForDrops(state);
