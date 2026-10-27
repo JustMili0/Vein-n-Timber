@@ -131,9 +131,9 @@ publishMods {
     file = loomx.modJar.flatMap { it.archiveFile }
     modLoaders.add("fabric")
 
-    // TODO: bring back one build-logic is ported
-    //changelog = readChangelogFromBranch("origin/rep-info", ".Changelogs/${project.property("mod.version")}-Changelog.md")
-    changelog = "Initial release"
+    // TODO: bring back once build-logic is ported from multiloader to fabric-only
+    //changelog = readChangelogFromBranch("origin/rep-info", ".Changelogs/${property("mod.version")}-Changelog.md")
+    changelog = rootProject.file(".Changelogs/${property("mod.version")}-Changelog.md").readText(Charsets.UTF_8)
 
     modrinth {
         accessToken = providers.gradleProperty("modrinth_token")
